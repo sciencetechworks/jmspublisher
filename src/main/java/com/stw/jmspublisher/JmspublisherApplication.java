@@ -1,14 +1,10 @@
 package com.stw.jmspublisher;
 
 import com.stw.shared.News;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.UUID;
 import javax.jms.JMSException;
 import javax.jms.Topic;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,9 +22,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class JmspublisherApplication {
 
     private static ConfigurableApplicationContext context;
-
+    private static int msgId=0;
     @Scheduled(fixedRate = 2500)
     public void sendMessage() throws JMSException {
+        
         if (context==null)
             return;
         
@@ -36,7 +33,7 @@ public class JmspublisherApplication {
         Topic springTopic = jmsTemplate.getConnectionFactory()
                 .createConnection()
                 .createSession().createTopic("spring");
-        News news = new News(100, "Latest news on Spring");
+        News news = new News(msgId++, "Latest news on Spring:"+UUID.randomUUID());
         jmsTemplate.convertAndSend(springTopic, news);
         log.info("News sent");
     }
